@@ -5,3 +5,4 @@ streamlit
 streamlit-agraph==0.0.28
 SPARQLWrapper
 networkx
+neo4j
