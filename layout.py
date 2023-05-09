@@ -64,6 +64,8 @@ def layout(*args):
 
 
 def footer():
+    myargs = [ 'Data science labs' ]
+    layout(*myargs)
     # myargs = [
     #     "Made in 	&nbsp; ",
     #     image('https://avatars3.githubusercontent.com/u/45109972?s=400&v=4',
