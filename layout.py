@@ -63,19 +63,19 @@ def layout(*args):
     st.markdown(str(foot), unsafe_allow_html=True)
 
 
+
 def footer():
-    myargs = [ 'Data science labs' ]
+    myargs = [
+        "Made in 	&nbsp; ",
+        image('https://avatars3.githubusercontent.com/u/45109972?s=400&v=4',
+              width=px(25), height=px(25)),
+        "	&nbsp; with  by &nbsp;",
+        image('https://raw.githubusercontent.com/datascience-labs/datascience-labs.github.io/main/images/logo.svg',
+              width=px(25), height=px(25)),
+        "   &nbsp;",
+        link("https://www.datasciencelabs.org/", "Data science lab research")
+    ]
     layout(*myargs)
-    # myargs = [
-    #     "Made in 	&nbsp; ",
-    #     image('https://avatars3.githubusercontent.com/u/45109972?s=400&v=4',
-    #           width=px(25), height=px(25)),
-    #     "	&nbsp; with ❤️ by &nbsp;",
-    #     link("https://twitter.com/ChristianKlose3", "@ChristianKlose3"),
-    #     br(),
-    #     link("https://www.buymeacoffee.com/ChrisChross", image('https://i.imgur.com/thJhzOO.png'),),
-    # ]
-    # layout(*myargs)
 
 
 if __name__ == "__main__":

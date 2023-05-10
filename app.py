@@ -3,6 +3,8 @@ from SPARQLWrapper import SPARQLWrapper, JSON
 from streamlit_agraph import agraph, TripleStore, Node, Edge, Config
 from layout import footer
 import json
+from neo4j import GraphDatabase
+import pandas as pd
 
 def get_inspired():
   sparql = SPARQLWrapper("http://dbpedia.org/sparql")
@@ -53,24 +55,40 @@ def get_inspired():
     store.add_triple(node1, link, node2)
   return store
 
+def db_conn():
+    uri = "bolt://localhost:7687"
+    user = "neo4j"
+    password = "abcd1234"
+    driver = GraphDatabase.driver(uri, auth=(user, password))
+    return driver
+
+
 def app():
   footer()
-  st.title("Graph Example")
-  st.sidebar.title("Welcome")
-  query_type = st.sidebar.selectbox("Query Tpye: ", ["Inspirationals", "Marvel"]) # could add more stuff here later on or add other endpoints in the sidebar.
-  config = Config(height=600, width=700, nodeHighlightBehavior=True, highlightColor="#F7A7A6", directed=True,
-                  collapsible=True)
+  
+  # main title
+  st.title("AGraph-Neo4j-SPARQL Examples")
+  
+  # sidebar
+  st.sidebar.title("Sidebar")
 
+
+  query_type = st.sidebar.selectbox("Query Type: ", ["Inspirationals", "Marvel", "Neo4j-Movie"]) # could add more stuff here later on or add other endpoints in the sidebar.
+  config = Config(height=500, width=1000, nodeHighlightBehavior=True, highlightColor="#F7A7A6", directed=True,
+                  collapsible=True )
+  
   if query_type=="Inspirationals":
     st.subheader("Inspirationals")
+    st.markdown("DBPEDIA에 SPARQL 쿼리를 요청하여 결과를 받아옴")
     with st.spinner("Loading data"):
       store = get_inspired()
       st.write("Nodes loaded: " + str(len(store.getNodes())))
     st.success("Done")
-    agraph(list(store.getNodes()), (store.getEdges() ), config)
+    agraph(nodes=list(store.getNodes()), edges=(store.getEdges() ), config=config)
 
   if query_type=="Marvel":
     #based on http://marvel-force-chart.surge.sh/
+    st.markdown("JSON 파일을 파싱하여 TripleStore로 저장하여 출력")
     with open("./marvel.json", encoding="utf8") as f:
       marvel_file = json.loads(f.read())
       marvel_store = TripleStore()
@@ -78,12 +96,21 @@ def app():
         marvel_store.add_triple(marvel_file["name"], "has_subgroup", sub_graph["name"], picture=marvel_file["img"])
         for node in sub_graph["children"]:
           node1 = node["hero"]
-          link = "blongs_to"
+          link = "belongs_to"
           node2 = sub_graph["name"]
           pic = node["img"]
           marvel_store.add_triple(node1, link, node2, picture=pic)
       agraph(list(marvel_store.getNodes()), (marvel_store.getEdges()), config)
 
+    
+  if query_type=="Neo4j-Movie":
+    st.markdown("Neo4j 데이터베이스로부터 데이터를 받아와서 Dataframe형태로 저장")
+    driver = db_conn()
+    with driver.session() as session:
+        result = session.run("MATCH (m:Movie) RETURN m.title AS title, m.released AS released, m.tagline AS tagline")
+        df = pd.DataFrame([r.values() for r in result], columns=result.keys())
+    
+    st.dataframe(df)
 
 if __name__ == '__main__':
     app()
