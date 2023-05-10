@@ -68,7 +68,6 @@ def app():
   
   # main title
   st.title("AGraph-Neo4j-SPARQL Examples")
-  
   # sidebar
   st.sidebar.title("Sidebar")
 
